@@ -155,6 +155,12 @@ app.delete('/api/tools/:id', authenticateToken, isAdmin, async (req, res) => {
     res.status(204).send(); // No content
 });
 
+// ANTES de app.get('*', ...)
+app.get('/api/test', (req, res) => {
+    console.log("--> GET /api/test: ¡La ruta de prueba funciona!");
+    res.json({ message: 'Backend test route OK!' });
+});
+
 // Ruta Catch-all para servir index.html del frontend (DEBE IR DESPUÉS DE LAS RUTAS API)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
