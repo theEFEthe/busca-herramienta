@@ -11,8 +11,12 @@ const DB_PATH = path.join(__dirname, 'db.json');
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_super_secreto_jwt_desarrollo'; 
 
 // --- Middlewares ---
-app.use(cors()); // Permite peticiones de diferentes orígenes (nuestro frontend)
-app.use(express.json()); // Para parsear bodies de peticiones JSON
+app.use(cors({
+  origin: '*', // Permite cualquier origen (cuidado en producción real, podrías restringirlo a tu dominio .onrender.com)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'] // Cabeceras permitidas
+}));
+app.use(express.json());
 
 // NUEVO: Middleware para loguear TODAS las peticiones entrantes
 app.use((req, res, next) => {
