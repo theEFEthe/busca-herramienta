@@ -37,16 +37,22 @@ async function writeDB(data) {
     }
 }
 
-// --- Middleware de Autenticación ---
+// --- Middleware de Autenticación (AÑADIR LOG) ---
 function authenticateToken(req, res, next) {
+    console.log(`--> authenticateToken: Intentando verificar token para ruta: ${req.path}`); // NUEVO LOG
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-    if (token == null) return res.sendStatus(401); // No hay token
-
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) {
+        console.log('<-- authenticateToken: No hay token'); // NUEVO LOG
+        return res.sendStatus(401);
+    }
     jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403); // Token no válido
-        req.user = user; // Añadimos el payload del token al request
+        if (err) {
+             console.log('<-- authenticateToken: Token inválido o expirado', err.message); // NUEVO LOG
+             return res.sendStatus(403);
+        }
+        console.log('<-- authenticateToken: Token verificado OK, usuario:', user.username); // NUEVO LOG
+        req.user = user;
         next();
     });
 }
@@ -62,16 +68,29 @@ function isAdmin(req, res, next) {
 
 // --- Rutas de Autenticación ---
 app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    const db = await readDB();
-    const user = db.users.find(u => u.username === username && u.password === password);
+    console.log(`--> POST /api/login: Recibida petición con body:`, req.body); // NUEVO LOG
+    try { // Añadir try-catch aquí también
+        const { username, password } = req.body;
+        if (!username || !password) {
+             console.log('<-- POST /api/login: Falta username o password'); // NUEVO LOG
+             return res.status(400).json({ message: 'Nombre de usuario y contraseña requeridos' });
+        }
+        const db = await readDB();
+        console.log(`   POST /api/login: Base de datos leída`); // NUEVO LOG
+        const user = db.users.find(u => u.username === username && u.password === password); // Aún en texto plano
 
-    if (user) {
-        // ¡No incluir la contraseña en el token!
-        const accessToken = jwt.sign({ userId: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-        res.json({ accessToken, role: user.role, username: user.username });
-    } else {
-        res.status(400).json({ message: 'Nombre de usuario o contraseña incorrectos' });
+        if (user) {
+            console.log(`   POST /api/login: Usuario encontrado:`, user.username); // NUEVO LOG
+            const accessToken = jwt.sign({ userId: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+            console.log(`<-- POST /api/login: Login exitoso para:`, user.username); // NUEVO LOG
+            res.json({ accessToken, role: user.role, username: user.username });
+        } else {
+            console.log(`<-- POST /api/login: Usuario no encontrado o contraseña incorrecta para:`, username); // NUEVO LOG
+            res.status(400).json({ message: 'Nombre de usuario o contraseña incorrectos' });
+        }
+    } catch (error) {
+         console.error(`<-- POST /api/login: Error interno:`, error); // NUEVO LOG
+         res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
 
@@ -79,8 +98,15 @@ app.post('/api/login', async (req, res) => {
 
 // GET todas las herramientas
 app.get('/api/tools', authenticateToken, async (req, res) => {
-    const db = await readDB();
-    res.json(db.tools);
+    console.log(`--> GET /api/tools: Petición recibida por usuario: ${req.user.username}`); // NUEVO LOG
+    try {
+        const db = await readDB();
+        console.log(`<-- GET /api/tools: Enviando ${db.tools.length} herramientas.`); // NUEVO LOG
+        res.json(db.tools);
+    } catch (error) {
+        console.error(`<-- GET /api/tools: Error interno:`, error); // NUEVO LOG
+        res.status(500).json({ message: 'Error interno al obtener herramientas' });
+    }
 });
 
 // POST crear nueva herramienta (solo Admin)
