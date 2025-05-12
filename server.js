@@ -14,6 +14,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tu_super_secreto_jwt_desarrollo';
 app.use(cors()); // Permite peticiones de diferentes orígenes (nuestro frontend)
 app.use(express.json()); // Para parsear bodies de peticiones JSON
 
+// NUEVO: Middleware para loguear TODAS las peticiones entrantes
+app.use((req, res, next) => {
+    console.log(`--> Petición Recibida: ${req.method} ${req.path}`);
+    next(); // Pasa a los siguientes middlewares/rutas
+});
+
 // Servir archivos estáticos del frontend desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
