@@ -7,32 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Modal de Inicio de Sesión -->
-    <div id="login-modal" class="modal" style="display: flex;"> <!-- Mostrar inicialmente -->
-        <div class="modal-content">
-            <h2>Iniciar Sesión</h2>
-            <form id="login-form">
-                <div>
-                    <label for="username">Usuario:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div>
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit">Entrar</button>
-                <p id="login-error" style="color: red; display: none;">Contraseña incorrecta.</p>
-            </form>
-        </div>
-    </div>
-
     <header>
         <h1>ToolTracker</h1>
-        <button id="logout-button" style="display: none; float: right; margin: -2.5rem 1rem 0 0; padding: 0.5rem;">Cerrar Sesión</button>
     </header>
 
-    <main style="display: none;"> <!-- Oculto inicialmente -->
-        <section id="add-tool-section" style="display: none;"> <!-- Oculto inicialmente, solo para admin -->
+    <main>
+        <section id="add-tool-section">
             <h2>Añadir Nueva Herramienta</h2>
             <form id="add-tool-form">
                 <div>
@@ -69,11 +49,9 @@
                 <input type="text" id="search-name" placeholder="Buscar por nombre...">
                 <select id="search-category">
                     <option value="">-- Todas las Categorías --</option>
-                    <!-- Opciones de categoría se añadirán aquí por JS -->
                 </select>
                 <select id="search-location">
                     <option value="">-- Todas las Ubicaciones --</option>
-                    <!-- Opciones de ubicación se añadirán aquí por JS -->
                 </select>
             </div>
             <div id="tool-list-container">
@@ -82,13 +60,13 @@
         </section>
     </main>
 
-    <footer style="display: none;"> <!-- Oculto inicialmente -->
+    <footer>
         <p>&copy; 2024 ToolTracker</p>
     </footer>
 
     <script src="script.js"></script>
 
-    <!-- Modal de Edición (inicialmente oculto) -->
+    <!-- Modal de Edición (se mantiene, se mostrará al hacer clic en editar) -->
     <div id="edit-tool-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-button" onclick="closeEditModal()">&times;</span>
