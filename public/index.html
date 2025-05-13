@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolTracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>ToolTracker</h1>
+    </header>
+
+    <main>
+        <section id="add-tool-section">
+            <h2>Añadir Nueva Herramienta</h2>
+            <form id="add-tool-form">
+                <div>
+                    <label for="tool-name">Nombre:</label>
+                    <input type="text" id="tool-name" name="tool-name" required>
+                </div>
+                <div>
+                    <label for="tool-description">Descripción:</label>
+                    <textarea id="tool-description" name="tool-description"></textarea>
+                </div>
+                <div>
+                    <label for="tool-category">Categoría:</label>
+                    <input type="text" id="tool-category" name="tool-category">
+                </div>
+                <div>
+                    <label for="tool-acquisition-date">Fecha de Adquisición:</label>
+                    <input type="date" id="tool-acquisition-date" name="tool-acquisition-date">
+                </div>
+                <div>
+                    <label for="tool-location">Ubicación:</label>
+                    <input type="text" id="tool-location" name="tool-location">
+                </div>
+                <div>
+                    <label for="tool-image">Imagen (URL):</label>
+                    <input type="url" id="tool-image" name="tool-image">
+                </div>
+                <button type="submit">Añadir Herramienta</button>
+            </form>
+        </section>
+
+        <section id="tool-catalog-section">
+            <h2>Catálogo de Herramientas</h2>
+            <div id="tool-filters">
+                <input type="text" id="search-name" placeholder="Buscar por nombre...">
+                <select id="search-category">
+                    <option value="">-- Todas las Categorías --</option>
+                </select>
+                <select id="search-location">
+                    <option value="">-- Todas las Ubicaciones --</option>
+                </select>
+            </div>
+            <div id="tool-list-container">
+                <!-- Las herramientas se mostrarán aquí -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 ToolTracker</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <!-- Modal de Edición (se mantiene, se mostrará al hacer clic en editar) -->
+    <div id="edit-tool-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeEditModal()">&times;</span>
+            <h2>Editar Herramienta</h2>
+            <form id="edit-tool-form">
+                <input type="hidden" id="edit-tool-id">
+                <div>
+                    <label for="edit-tool-name">Nombre:</label>
+                    <input type="text" id="edit-tool-name" name="edit-tool-name" required>
+                </div>
+                <div>
+                    <label for="edit-tool-description">Descripción:</label>
+                    <textarea id="edit-tool-description" name="edit-tool-description"></textarea>
+                </div>
+                <div>
+                    <label for="edit-tool-category">Categoría:</label>
+                    <input type="text" id="edit-tool-category" name="edit-tool-category">
+                </div>
+                <div>
+                    <label for="edit-tool-acquisition-date">Fecha de Adquisición:</label>
+                    <input type="date" id="edit-tool-acquisition-date" name="edit-tool-acquisition-date">
+                </div>
+                <div>
+                    <label for="edit-tool-location">Ubicación:</label>
+                    <input type="text" id="edit-tool-location" name="edit-tool-location">
+                </div>
+                <div>
+                    <label for="edit-tool-image">Imagen (URL):</label>
+                    <input type="url" id="edit-tool-image" name="edit-tool-image">
+                </div>
+                <button type="submit">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 
