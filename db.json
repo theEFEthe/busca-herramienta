@@ -40,6 +40,16 @@
       "acquisitionDate": "2020-12-10",
       "location": "Bello",
       "image": ""
+    },
+    {
+      "id": "1747169553215",
+      "name": "Cautín",
+      "description": "marca weller 12w",
+      "category": "electrónica",
+      "acquisitionDate": "2024-03-13",
+      "location": "Bello",
+      "quantity": 3,
+      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/cautin%20wm120%2012w.png"
     }
   ]
 }

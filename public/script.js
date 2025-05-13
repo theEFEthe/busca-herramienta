@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const editToolAcquisitionDateInput = document.getElementById('edit-tool-acquisition-date');
     const editToolLocationInput = document.getElementById('edit-tool-location');
     const editToolImageInput = document.getElementById('edit-tool-image');
+    const editToolQuantityInput = document.getElementById('edit-tool-quantity');
 
     // --- Estado de la Aplicación ---
     let tools = [];
@@ -255,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p><strong>Categoría:</strong> ${tool.category || 'N/A'}</p>
                 <p><strong>Fecha Adquisición:</strong> ${tool.acquisitionDate || 'N/A'}</p>
                 <p><strong>Ubicación:</strong> ${tool.location || 'N/A'}</p>
+                <p><strong>Cantidad:</strong> ${tool.quantity || '1'}</p>
                 <div class="tool-actions">
                     ${buttonsHTML}
                 </div>
@@ -340,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 category: document.getElementById('tool-category').value.trim(),
                 acquisitionDate: document.getElementById('tool-acquisition-date').value,
                 location: document.getElementById('tool-location').value.trim(),
+                quantity: parseInt(document.getElementById('tool-quantity').value) || 1,
                 image: document.getElementById('tool-image').value.trim() // trim para evitar URLs con espacios
             };
             addTool(toolData);
@@ -357,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 category: editToolCategoryInput.value.trim(),
                 acquisitionDate: editToolAcquisitionDateInput.value,
                 location: editToolLocationInput.value.trim(),
+                quantity: parseInt(editToolQuantityInput.value) || 1,
                 image: editToolImageInput.value.trim()
             };
             updateTool(toolId, toolData);
@@ -382,6 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editToolCategoryInput.value = toolToEdit.category || '';
         editToolAcquisitionDateInput.value = toolToEdit.acquisitionDate || '';
         editToolLocationInput.value = toolToEdit.location || '';
+        editToolQuantityInput.value = toolToEdit.quantity || 1;
         editToolImageInput.value = toolToEdit.image || '';
         if (editToolModal) editToolModal.style.display = 'flex';
     }
