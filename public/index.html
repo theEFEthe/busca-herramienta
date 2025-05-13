@@ -9,10 +9,33 @@
 <body>
     <header>
         <h1>ToolTracker</h1>
+        <div id="user-session-controls">
+            <span id="logged-in-user-info"></span>
+            <button id="logout-button" style="display:none;">Cerrar Sesión</button>
+        </div>
     </header>
 
-    <main>
-        <section id="add-tool-section">
+    <!-- Modal de Login -->
+    <div id="login-modal" class="modal" style="display: flex;"> <!-- Inicialmente visible -->
+        <div class="modal-content">
+            <h2>Iniciar Sesión</h2>
+            <form id="login-form">
+                <div>
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div>
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Entrar</button>
+                <p id="login-error" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <main style="display:none;"> <!-- Inicialmente oculto hasta el login -->
+        <section id="add-tool-section" style="display:none;"> <!-- Oculto hasta que el rol sea admin -->
             <h2>Añadir Nueva Herramienta</h2>
             <form id="add-tool-form">
                 <div>
@@ -37,7 +60,7 @@
                 </div>
                 <div>
                     <label for="tool-image">Imagen (URL):</label>
-                    <input type="url" id="tool-image" name="tool-image">
+                    <input type="url" id="tool-image" name="tool-image" placeholder="https://ejemplo.com/imagen.jpg">
                 </div>
                 <button type="submit">Añadir Herramienta</button>
             </form>
@@ -56,6 +79,7 @@
             </div>
             <div id="tool-list-container">
                 <!-- Las herramientas se mostrarán aquí -->
+                <p>Por favor, inicia sesión para ver las herramientas.</p>
             </div>
         </section>
     </main>
@@ -66,7 +90,7 @@
 
     <script src="script.js"></script>
 
-    <!-- Modal de Edición (se mantiene, se mostrará al hacer clic en editar) -->
+    <!-- Modal de Edición -->
     <div id="edit-tool-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-button" onclick="closeEditModal()">&times;</span>
@@ -95,7 +119,7 @@
                 </div>
                 <div>
                     <label for="edit-tool-image">Imagen (URL):</label>
-                    <input type="url" id="edit-tool-image" name="edit-tool-image">
+                    <input type="url" id="edit-tool-image" name="edit-tool-image" placeholder="https://ejemplo.com/imagen.jpg">
                 </div>
                 <button type="submit">Guardar Cambios</button>
             </form>

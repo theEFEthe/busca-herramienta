@@ -1,0 +1,45 @@
+{
+  "users": [
+    {
+      "id": "admin1",
+      "username": "admin",
+      "password": "$2b$10$jgEl4F8PQMTu6hq/bnWrJuyccbcKxdNH5lSswjUn6gn4mbNibMnkC",
+      "role": "admin"
+    },
+    {
+      "id": "user1",
+      "username": "user",
+      "password": "$2b$10$mFzAPm4r2kkXlgO0nZ9fQOPTJQBEyqZMDS9wijgjcvPEp8hXTkcQy",
+      "role": "user"
+    }
+  ],
+  "tools": [
+    {
+      "id": "1747159960897",
+      "name": "Taladro Inalámbrico",
+      "description": "marca Milwaukee",
+      "category": "eléctrica",
+      "acquisitionDate": "2020-12-10",
+      "location": "Bello",
+      "image": ""
+    },
+    {
+      "id": "1747160006835",
+      "name": "taladro de cable",
+      "description": "amarillo",
+      "category": "eléctrica",
+      "acquisitionDate": "2020-12-10",
+      "location": "Poblado",
+      "image": ""
+    },
+    {
+      "id": "1747160039896",
+      "name": "destornillador estrella",
+      "description": "para mecánico",
+      "category": "manual",
+      "acquisitionDate": "2020-12-10",
+      "location": "Bello",
+      "image": ""
+    }
+  ]
+}
