@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToolTracker</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Biblioteca para generar códigos de barras -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
 <body>
     <header>
@@ -22,11 +24,11 @@
             <form id="login-form">
                 <div>
                     <label for="username">Usuario:</label>
-                    <input type="text" id="username" name="username" required>
+                    <input type="text" id="username" name="username" required autocomplete="username">
                 </div>
                 <div>
                     <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
                 </div>
                 <button type="submit">Entrar</button>
                 <p id="login-error" class="error-message"></p>
@@ -35,6 +37,15 @@
     </div>
 
     <main style="display:none;"> <!-- Inicialmente oculto hasta el login -->
+        <!-- Sistema de pestañas -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="catalog">Catálogo de Herramientas</button>
+                <button class="tab-button" data-tab="add" id="add-tab-button">Añadir Nueva Herramienta</button>
+                <button class="tab-button" data-tab="assigned">Personas a Cargo</button>
+            </div>
+        </div>
+
         <section id="add-tool-section" style="display:none;"> <!-- Oculto hasta que el rol sea admin -->
             <h2>Añadir Nueva Herramienta</h2>
             <form id="add-tool-form">
@@ -59,8 +70,18 @@
                     <input type="text" id="tool-location" name="tool-location">
                 </div>
                 <div>
-                    <label for="tool-quantity">Cantidad:</label>
-                    <input type="number" id="tool-quantity" name="tool-quantity" min="1" value="1">
+                    <label for="tool-assigned-to">A cargo de:</label>
+                    <input type="text" id="tool-assigned-to" name="tool-assigned-to" placeholder="Nombre de la persona a cargo">
+                </div>
+                <div class="quantity-fields">
+                    <div>
+                        <label for="tool-quantity-stock">Cantidad en Almacén:</label>
+                        <input type="number" id="tool-quantity-stock" name="tool-quantity-stock" min="0" value="1">
+                    </div>
+                    <div>
+                        <label for="tool-quantity-borrowed">Cantidad Prestada:</label>
+                        <input type="number" id="tool-quantity-borrowed" name="tool-quantity-borrowed" min="0" value="0">
+                    </div>
                 </div>
                 <div>
                     <label for="tool-image">Imagen (URL):</label>
@@ -68,6 +89,13 @@
                 </div>
                 <button type="submit">Añadir Herramienta</button>
             </form>
+
+            <div id="admin-advanced-actions" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
+                <h4>Opciones Avanzadas de Administrador</h4>
+                <button id="clear-loan-history-btn" class="button-danger" title="Elimina todos los registros de préstamos de unidades individuales. Útil para resolver desincronizaciones masivas.">Borrar TODO el Historial de Préstamos de Unidades</button>
+                <p style="font-size: 0.9em; color: #555;">Advertencia: Esta acción es irreversible y afectará el seguimiento detallado de unidades. Las cantidades generales de herramientas no se verán afectadas directamente por esta acción, pero el estado individual de cada unidad en los desplegables se reseteará a "Almacén" si no hay un préstamo activo registrado en el objeto principal de la herramienta.</p>
+            </div>
+
         </section>
 
         <section id="tool-catalog-section">
@@ -84,6 +112,74 @@
             <div id="tool-list-container">
                 <!-- Las herramientas se mostrarán aquí -->
                 <p>Por favor, inicia sesión para ver las herramientas.</p>
+            </div>
+        </section>
+
+        <section id="assigned-people-section" style="display:none;">
+            <h2>Personas a Cargo de Herramientas</h2>
+            
+            <div class="section-actions">
+                <button id="add-person-btn">Añadir Nueva Persona</button>
+            </div>
+            
+            <div id="people-filters">
+                <input type="text" id="search-person" placeholder="Buscar por nombre de persona...">
+            </div>
+            
+            <div id="people-list-container">
+                <!-- Las personas y sus herramientas se mostrarán aquí -->
+                <p>Cargando información de asignaciones...</p>
+            </div>
+            
+            <!-- Modal para añadir nueva persona -->
+            <div id="add-person-modal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close-button" onclick="closeAddPersonModal()">&times;</span>
+                    <h2>Añadir Nueva Persona</h2>
+                    <form id="add-person-form">
+                        <div>
+                            <label for="person-name">Nombre:</label>
+                            <input type="text" id="person-name" name="person-name" required placeholder="Nombre completo">
+                        </div>
+                        <div>
+                            <label for="person-position">Cargo/Posición:</label>
+                            <input type="text" id="person-position" name="person-position" placeholder="Opcional">
+                        </div>
+                        <div>
+                            <label for="person-department">Departamento:</label>
+                            <input type="text" id="person-department" name="person-department" placeholder="Opcional">
+                        </div>
+                        <button type="submit">Guardar Persona</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Modal para asignar herramienta -->
+            <div id="assign-tool-modal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close-button" onclick="closeAssignToolModal()">&times;</span>
+                    <h2>Asignar Herramienta</h2>
+                    <form id="assign-tool-form">
+                        <input type="hidden" id="assign-to-person" name="assign-to-person">
+                        <div>
+                            <label for="assign-tool-select">Seleccionar Herramienta:</label>
+                            <select id="assign-tool-select" name="assign-tool-select" required>
+                                <option value="">-- Seleccione una herramienta --</option>
+                                <!-- Las herramientas disponibles se cargarán aquí -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="assign-quantity">Cantidad a Asignar:</label>
+                            <input type="number" id="assign-quantity" name="assign-quantity" min="1" value="1" required>
+                            <span id="available-quantity-info" class="info-text"></span>
+                        </div>
+                        <div>
+                            <label for="assign-note">Nota o Comentario:</label>
+                            <textarea id="assign-note" name="assign-note" placeholder="Opcional"></textarea>
+                        </div>
+                        <button type="submit">Asignar Herramienta</button>
+                    </form>
+                </div>
             </div>
         </section>
     </main>
@@ -122,8 +218,18 @@
                     <input type="text" id="edit-tool-location" name="edit-tool-location">
                 </div>
                 <div>
-                    <label for="edit-tool-quantity">Cantidad:</label>
-                    <input type="number" id="edit-tool-quantity" name="edit-tool-quantity" min="1" value="1">
+                    <label for="edit-tool-assigned-to">A cargo de:</label>
+                    <input type="text" id="edit-tool-assigned-to" name="edit-tool-assigned-to" placeholder="Nombre de la persona a cargo">
+                </div>
+                <div class="quantity-fields">
+                    <div>
+                        <label for="edit-tool-quantity-stock">Cantidad en Almacén:</label>
+                        <input type="number" id="edit-tool-quantity-stock" name="edit-tool-quantity-stock" min="0" value="0">
+                    </div>
+                    <div>
+                        <label for="edit-tool-quantity-borrowed">Cantidad Prestada:</label>
+                        <input type="number" id="edit-tool-quantity-borrowed" name="edit-tool-quantity-borrowed" min="0" value="0">
+                    </div>
                 </div>
                 <div>
                     <label for="edit-tool-image">Imagen (URL):</label>
