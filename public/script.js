@@ -22,24 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
     const addTabButton = document.getElementById('add-tab-button');
-    
-    // Sección de personas a cargo
-    const assignedPeopleSection = document.getElementById('assigned-people-section');
-    const peopleListContainer = document.getElementById('people-list-container');
-    const searchPersonInput = document.getElementById('search-person');
-    const addPersonBtn = document.getElementById('add-person-btn');
-    
-    // Modal de Añadir Persona
-    const addPersonModal = document.getElementById('add-person-modal');
-    const addPersonForm = document.getElementById('add-person-form');
-    
-    // Modal de Asignar Herramienta
-    const assignToolModal = document.getElementById('assign-tool-modal');
-    const assignToolForm = document.getElementById('assign-tool-form');
-    const assignToolSelect = document.getElementById('assign-tool-select');
-    const assignQuantityInput = document.getElementById('assign-quantity');
-    const assignToPersonInput = document.getElementById('assign-to-person');
-    const availableQuantityInfo = document.getElementById('available-quantity-info');
+    const maintenanceTabButton = document.getElementById('maintenance-tab-button'); // Asegurar que esta línea exista
     
     // Filtros
     const searchNameInput = document.getElementById('search-name');
@@ -55,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const editToolCategoryInput = document.getElementById('edit-tool-category');
     const editToolAcquisitionDateInput = document.getElementById('edit-tool-acquisition-date');
     const editToolLocationInput = document.getElementById('edit-tool-location');
-    const editToolAssignedToInput = document.getElementById('edit-tool-assigned-to');
     const editToolQuantityStockInput = document.getElementById('edit-tool-quantity-stock');
     const editToolQuantityBorrowedInput = document.getElementById('edit-tool-quantity-borrowed');
     const editToolImageInput = document.getElementById('edit-tool-image');
@@ -64,14 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearLoanHistoryButton = document.getElementById('clear-loan-history-btn');
 
     // --- Estado de la Aplicación ---
-    let tools = [];
-    let people = []; // Lista de personas registradas
-    let currentUser = null; // { username: '...', role: '...', token: '...' }
-    let loanHistory = {}; // Historial de préstamos por unidad: {toolId_unitNumber: [{date: Date, action: 'loan|return', person: '...'}]}
+    let tools = []; // Mantener
+    let currentUser = null; // Mantener
+    let loanHistory = {}; // Mantener
 
     // Hacer que las variables sean accesibles globalmente
-    window.appCurrentUser = null;
-    window.appPeople = [];
+    window.appCurrentUser = null; // Mantener
 
     // --- Funciones auxiliares ---
     function generateId() {
@@ -153,48 +133,33 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // Funciones globales para los modals
-    window.closeAddPersonModal = function() {
-        if (document.getElementById('add-person-modal')) 
-            document.getElementById('add-person-modal').style.display = 'none';
-    };
-    
-    window.closeAssignToolModal = function() {
-        if (document.getElementById('assign-tool-modal')) 
-            document.getElementById('assign-tool-modal').style.display = 'none';
-    };
+    // window.closeAddPersonModal = function() { ... }; // COMENTAR/ELIMINAR
+    // window.closeAssignToolModal = function() { ... }; // COMENTAR/ELIMINAR
 
     // --- Funciones para manejar las pestañas ---
     function activateTab(tabId) {
-        // Desactivar todas las pestañas (botones)
         tabButtons.forEach(button => button.classList.remove('active'));
         
-        // Ocultar todas las secciones de contenido primero
         document.getElementById('tool-catalog-section').style.display = 'none';
         document.getElementById('add-tool-section').style.display = 'none';
-        document.getElementById('assigned-people-section').style.display = 'none';
+        // document.getElementById('assigned-people-section').style.display = 'none'; // ELIMINADO
+        document.getElementById('maintenance-section').style.display = 'none'; 
         
-        // Activar la pestaña seleccionada (botón)
         const selectedButton = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
-        if (selectedButton) {
-            selectedButton.classList.add('active');
-        }
+        if (selectedButton) selectedButton.classList.add('active');
         
-        // Mostrar el contenido correspondiente
         if (tabId === 'catalog') {
             document.getElementById('tool-catalog-section').style.display = 'block';
         } else if (tabId === 'add' && currentUser && currentUser.role === 'admin') {
             document.getElementById('add-tool-section').style.display = 'block';
-        } else if (tabId === 'assigned' && currentUser && currentUser.role === 'admin') {
+        } /* else if (tabId === 'assigned' && currentUser && currentUser.role === 'admin') { // COMENTAR/ELIMINAR ESTE BLOQUE
             document.getElementById('assigned-people-section').style.display = 'block';
-            loadPeople();
-            renderAssignedPeople(); // Cargar y mostrar personas con herramientas
+            // loadPeople(); 
+            // renderAssignedPeople();
+        } */ else if (tabId === 'maintenance' && currentUser && currentUser.role === 'admin') {
+            // ... (código de mantenimiento se mantiene)
         } else {
-            // Si intentó acceder a una pestaña restringida, redirigir al catálogo
-            document.getElementById('tool-catalog-section').style.display = 'block';
-            const catalogButton = document.querySelector(`.tab-button[data-tab="catalog"]`);
-            if (catalogButton) {
-                catalogButton.classList.add('active');
-            }
+            // ... (default se mantiene)
         }
     }
 
@@ -210,14 +175,16 @@ document.addEventListener('DOMContentLoaded', () => {
             window.appCurrentUser = currentUser;
             
             // Mostrar/ocultar botones de pestaña según el rol
-            const assignedTabButton = document.querySelector(`.tab-button[data-tab="assigned"]`);
+            // const assignedTabButton = document.querySelector(`.tab-button[data-tab="assigned"]`); // COMENTAR/ELIMINAR
             
             if (currentUser.role === 'admin') {
                 if (addTabButton) addTabButton.style.display = 'block';
-                if (assignedTabButton) assignedTabButton.style.display = 'block';
+                // if (assignedTabButton) assignedTabButton.style.display = 'block'; // COMENTAR/ELIMINAR
+                if (maintenanceTabButton) maintenanceTabButton.style.display = 'block';
             } else { // Rol 'user' u otros
                 if (addTabButton) addTabButton.style.display = 'none';
-                if (assignedTabButton) assignedTabButton.style.display = 'none';
+                // if (assignedTabButton) assignedTabButton.style.display = 'none'; // COMENTAR/ELIMINAR
+                if (maintenanceTabButton) maintenanceTabButton.style.display = 'none';
             }
             
             // Activar la pestaña del catálogo por defecto
@@ -896,541 +863,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Renderizado de Personas ---
-    function renderAssignedPeople(searchTerm = '') {
-        const peopleListContainer = document.getElementById('people-list-container');
-        if (!peopleListContainer) return;
-        
-        peopleListContainer.innerHTML = '<p>Procesando información de asignaciones...</p>';
-        
-        // Buscar datos
-        loadPeopleFromStorage();
-        
-        if (!people || people.length === 0) {
-            peopleListContainer.innerHTML = '<p>No hay personas registradas en el sistema.</p>';
-            return;
-        }
-        
-        // Filtrar por término de búsqueda si existe
-        let filteredPeople = people;
-        if (searchTerm && searchTerm.trim() !== '') {
-            const term = searchTerm.trim().toLowerCase();
-            filteredPeople = people.filter(person => 
-                person.name.toLowerCase().includes(term) ||
-                (person.position && person.position.toLowerCase().includes(term)) ||
-                (person.department && person.department.toLowerCase().includes(term))
-            );
-        }
-        
-        // Ordenar alfabéticamente
-        filteredPeople.sort((a, b) => a.name.localeCompare(b.name));
-        
-        if (filteredPeople.length === 0) {
-            peopleListContainer.innerHTML = '<p>No hay personas que coincidan con la búsqueda.</p>';
-            return;
-        }
-        
-        // Limpiar y mostrar
-        peopleListContainer.innerHTML = '';
-        
-        filteredPeople.forEach(person => {
-            // Buscar herramientas asignadas a esta persona
-            const personTools = tools.filter(tool => 
-                tool.assignedTo && 
-                tool.assignedTo.trim().toLowerCase() === person.name.trim().toLowerCase() &&
-                parseInt(tool.quantityBorrowed) > 0
-            );
-            
-            const personCard = document.createElement('div');
-            personCard.classList.add('person-card');
-            personCard.dataset.id = person.id;
-            
-            let personInfo = `
-                <div class="person-info">
-                    <div class="person-info-details">
-                        <h3>${person.name}</h3>
-                        ${person.position ? `<p><strong>Cargo/Posición:</strong> ${person.position}</p>` : ''}
-                        ${person.department ? `<p><strong>Departamento:</strong> ${person.department}</p>` : ''}
-                    </div>
-                    <div class="person-actions">
-                        <button class="assign-tool-btn" data-person="${person.name}">Asignar Herramienta</button>
-                        <button class="delete-person-btn" data-id="${person.id}">Eliminar</button>
-                    </div>
-                </div>
-            `;
-            
-            let toolsHTML = '';
-            if (personTools.length > 0) {
-                toolsHTML = `
-                    <div class="assigned-tools-header">
-                        <h4>Herramientas Asignadas (${personTools.length})</h4>
-                    </div>
-                    <div class="assigned-tools">
-                `;
-                
-                personTools.forEach(tool => {
-                    toolsHTML += `
-                        <div class="assigned-tool-item" data-id="${tool.id}">
-                            <span class="tool-name">${tool.name}</span>
-                            <span class="tool-details">
-                                <span class="tool-borrowed">Cantidad: ${tool.quantityBorrowed}</span>
-                                <span class="tool-location">${tool.location || 'N/A'}</span>
-                                <button class="remove-tool-btn" data-id="${tool.id}" data-person="${person.name}">Devolver</button>
-                            </span>
-                        </div>
-                    `;
-                });
-                
-                toolsHTML += '</div>';
-            } else {
-                toolsHTML = '<p>No tiene herramientas asignadas</p>';
-            }
-            
-            personCard.innerHTML = personInfo + toolsHTML;
-            
-            // Añadir eventos a los botones
-            const assignBtn = personCard.querySelector('.assign-tool-btn');
-            if (assignBtn) {
-                assignBtn.addEventListener('click', () => openAssignToolModal(person.name));
-            }
-            
-            const deleteBtn = personCard.querySelector('.delete-person-btn');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', () => deletePerson(person.id));
-            }
-            
-            const removeToolBtns = personCard.querySelectorAll('.remove-tool-btn');
-            removeToolBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const toolId = btn.dataset.id;
-                    const personName = btn.dataset.person;
-                    removeToolFromPerson(personName, toolId);
-                });
-            });
-            
-            peopleListContainer.appendChild(personCard);
-        });
-    }
-
-    // --- Funciones para gestión de personas ---
-    function loadPeople() {
-        // En un entorno real, esto cargaría personas desde la API
-        // Por ahora, extraeremos personas únicas de las herramientas
-        
-        // Obtener personas únicas de las herramientas asignadas
-        const assignedPeopleSet = new Set();
-        tools.forEach(tool => {
-            if (tool.assignedTo && tool.assignedTo.trim() !== '') {
-                assignedPeopleSet.add(tool.assignedTo.trim());
-            }
-        });
-        
-        // Convertir a array de objetos de persona
-        const extractedPeople = Array.from(assignedPeopleSet).map(name => ({
-            id: generateId(), // Función auxiliar para generar IDs únicos
-            name: name,
-            position: '',
-            department: ''
-        }));
-        
-        // Fusionar con personas existentes (preservando datos adicionales)
-        const existingPeopleMap = new Map(people.map(p => [p.name, p]));
-        
-        extractedPeople.forEach(person => {
-            if (existingPeopleMap.has(person.name)) {
-                // La persona ya existe, mantener sus datos
-                const existingPerson = existingPeopleMap.get(person.name);
-                person.position = existingPerson.position || '';
-                person.department = existingPerson.department || '';
-                person.id = existingPerson.id; // Mantener el ID original
-            }
-        });
-        
-        // Actualizar lista de personas
-        people = extractedPeople;
-        window.appPeople = people; // Actualizar la referencia global
-        
-        // Guardar en localStorage para persistencia
-        localStorage.setItem('toolTrackerPeople', JSON.stringify(people));
-    }
     
-    function loadPeopleFromStorage() {
-        const storedPeople = localStorage.getItem('toolTrackerPeople');
-        if (storedPeople) {
-            people = JSON.parse(storedPeople);
-            window.appPeople = people; // Actualizar la referencia global
-        }
-    }
+    // --- Funciones para gestión de personas ---
+    
+    
+    
     
     // Hacer que la función sea accesible globalmente
-    window.loadPeopleFromStorage = function() {
-        const storedPeople = localStorage.getItem('toolTrackerPeople');
-        if (storedPeople) {
-            window.appPeople = JSON.parse(storedPeople);
-            return window.appPeople;
-        }
-        return [];
-    };
     
-    function addPerson(personData) {
-        const newPerson = {
-            id: generateId(),
-            name: personData.name.trim(),
-            position: personData.position || '',
-            department: personData.department || ''
-        };
-        
-        // Verificar si ya existe una persona con ese nombre
-        const existingPerson = people.find(p => p.name.toLowerCase() === newPerson.name.toLowerCase());
-        if (existingPerson) {
-            alert(`Ya existe una persona con el nombre "${newPerson.name}"`);
-            return false;
-        }
-        
-        people.push(newPerson);
-        
-        // Guardar en localStorage
-        localStorage.setItem('toolTrackerPeople', JSON.stringify(people));
-        
-        renderAssignedPeople();
-        return true;
-    }
     
-    function deletePerson(personId) {
-        // Encontrar la persona
-        const personIndex = people.findIndex(p => p.id === personId);
-        if (personIndex === -1) return false;
-        
-        const personName = people[personIndex].name;
-        
-        // Verificar si la persona tiene herramientas asignadas
-        const hasAssignedTools = tools.some(tool => tool.assignedTo === personName);
-        
-        if (hasAssignedTools) {
-            const confirm = window.confirm(
-                `"${personName}" tiene herramientas asignadas. ¿Desea devolver todas las herramientas al almacén y eliminar a la persona?`
-            );
-            
-            if (!confirm) return false;
-            
-            // Devolver todas las herramientas asignadas al almacén
-            tools.forEach(tool => {
-                if (tool.assignedTo === personName) {
-                    // Aumentar la cantidad en almacén
-                    tool.quantityStock = (parseInt(tool.quantityStock) || 0) + (parseInt(tool.quantityBorrowed) || 0);
-                    // Resetear cantidad prestada y asignación
-                    tool.quantityBorrowed = 0;
-                    tool.assignedTo = '';
-                }
-            });
-            
-            // Actualizar las herramientas en el servidor
-            updateToolsWithoutAssignment();
-        }
-        
-        // Eliminar la persona
-        people.splice(personIndex, 1);
-        
-        // Guardar en localStorage
-        localStorage.setItem('toolTrackerPeople', JSON.stringify(people));
-        
-        renderAssignedPeople();
-        return true;
-    }
     
-    function updateToolsWithoutAssignment() {
-        // Guardar herramientas actualizadas en localStorage
-        localStorage.setItem('toolTrackerTools', JSON.stringify(tools));
-        
-        // Intentar sincronizar con el servidor
-        syncTools();
-        
-        // Renderizar para reflejar cambios
-        renderTools();
-        populateFilterDropdowns();
-    }
+    
+    
+    
+    
     
     // --- Funciones para asignación de herramientas ---
-    function openAssignToolModal(personName) {
-        const assignToolModal = document.getElementById('assign-tool-modal');
-        const assignToolSelect = document.getElementById('assign-tool-select');
-        const assignToPersonInput = document.getElementById('assign-to-person');
-        const assignToolForm = document.getElementById('assign-tool-form');
-        
-        if (!assignToolModal || !assignToolSelect) return;
-        
-        // Limpiar el formulario
-        if (assignToolForm) assignToolForm.reset();
-        
-        // Establecer la persona seleccionada
-        if (assignToPersonInput) assignToPersonInput.value = personName;
-        
-        // Cargar herramientas disponibles en el selector
-        loadAvailableTools(assignToolSelect);
-        
-        // Mostrar el modal
-        assignToolModal.style.display = 'flex';
-        
-        // Configurar evento para actualizar información de disponibilidad
-        if (assignToolSelect) {
-            assignToolSelect.addEventListener('change', updateAvailableQuantityInfo);
-        }
-        
-        // Inicializar la información de disponibilidad
-        updateAvailableQuantityInfo();
-    }
     
-    function loadAvailableTools(selectElement) {
-        if (!selectElement) return;
-        
-        // Limpiar opciones existentes
-        selectElement.innerHTML = '<option value="">-- Seleccione una herramienta --</option>';
-        
-        // Filtrar herramientas con cantidad en almacén > 0
-        const availableTools = tools.filter(tool => parseInt(tool.quantityStock) > 0);
-        
-        if (availableTools.length === 0) {
-            selectElement.innerHTML += '<option value="" disabled>No hay herramientas disponibles en almacén</option>';
-            return;
-        }
-        
-        // Ordenar por nombre
-        availableTools.sort((a, b) => a.name.localeCompare(b.name));
-        
-        // Añadir opciones al selector
-        availableTools.forEach(tool => {
-            const option = document.createElement('option');
-            option.value = tool.id;
-            option.textContent = `${tool.name} (${tool.quantityStock} disponibles)`;
-            option.dataset.stock = tool.quantityStock;
-            selectElement.appendChild(option);
-        });
-    }
     
-    function updateAvailableQuantityInfo() {
-        const assignToolSelect = document.getElementById('assign-tool-select');
-        const assignQuantityInput = document.getElementById('assign-quantity');
-        const availableQuantityInfo = document.getElementById('available-quantity-info');
-        
-        if (!assignToolSelect || !availableQuantityInfo) return;
-        
-        const selectedOption = assignToolSelect.options[assignToolSelect.selectedIndex];
-        
-        if (!selectedOption || !selectedOption.value) {
-            availableQuantityInfo.textContent = 'Seleccione una herramienta para ver disponibilidad';
-            if (assignQuantityInput) {
-                assignQuantityInput.max = 1;
-                assignQuantityInput.value = 1;
-            }
-            return;
-        }
-        
-        const availableStock = parseInt(selectedOption.dataset.stock || 0);
-        
-        availableQuantityInfo.textContent = `Disponibles en almacén: ${availableStock}`;
-        
-        // Actualizar el límite máximo del input de cantidad
-        if (assignQuantityInput) {
-            assignQuantityInput.max = availableStock;
-            if (parseInt(assignQuantityInput.value) > availableStock) {
-                assignQuantityInput.value = availableStock;
-            }
-        }
-    }
     
-    function assignToolToPerson(personName, toolId, quantity, note) {
-        // Validar cantidad
-        quantity = parseInt(quantity);
-        if (isNaN(quantity) || quantity <= 0) {
-            alert('La cantidad debe ser un número positivo');
-            return false;
-        }
-        
-        // Encontrar la herramienta
-        const tool = tools.find(t => t.id === toolId);
-        if (!tool) {
-            alert('Herramienta no encontrada');
-            return false;
-        }
-        
-        // Verificar stock disponible
-        const availableStock = parseInt(tool.quantityStock) || 0;
-        if (availableStock < quantity) {
-            alert(`No hay suficientes unidades disponibles. Solo hay ${availableStock} en almacén.`);
-            return false;
-        }
-        
-        // Actualizar cantidades
-        tool.quantityStock = availableStock - quantity;
-        tool.quantityBorrowed = (parseInt(tool.quantityBorrowed) || 0) + quantity;
-        tool._modified = true; // Marcar como modificada
-        
-        // Si la herramienta ya estaba asignada a alguien más, crear una nueva entrada
-        if (tool.assignedTo && tool.assignedTo !== personName) {
-            // Clonar la herramienta para la nueva asignación
-            const newAssignment = { ...tool }; // tool aquí ya tiene quantityStock reducido y quantityBorrowed incrementado por 'quantity'
-            newAssignment.id = generateId();
-            newAssignment.assignedTo = personName;
-            newAssignment.quantityBorrowed = quantity; // El clon solo es responsable de esta cantidad específica del préstamo
-            newAssignment.quantityStock = 0;      // El clon no tiene stock propio
-            newAssignment.note = note || '';
-            newAssignment._modified = true; 
-            
-            // La herramienta original 'tool' ahora tiene menos stock y su quantityBorrowed
-            // refleja que 'quantity' unidades más están en circulación (ya sea asignadas directamente a ella o a este clon).
-            // No es necesario restar de tool.quantityBorrowed aquí.
-            // tool.quantityBorrowed -= quantity; // ESTO ERA INCORRECTO Y SE ELIMINÓ ANTES
-
-            tools.push(newAssignment);
-        } else {
-            // Asignar directamente o actualizar asignación existente en 'tool'
-            tool.assignedTo = personName; 
-            tool.note = note || '';
-            // tool.quantityStock ya fue reducido y tool.quantityBorrowed ya fue incrementado al inicio.
-        }
-
-        // --- NUEVA LÓGICA para actualizar loanHistory para las unidades específicas prestadas ---
-        const representativeToolForHistory = window.tools.find(t => t.name === tool.name);
-        if (representativeToolForHistory) {
-            const historyKeyToolId = representativeToolForHistory.id;
-            // El total de unidades físicas de este tipo de herramienta.
-            // Usamos las cantidades de la herramienta representativa *después* de las modificaciones de stock/préstamo de esta transacción.
-            const totalPhysicalUnits = (parseInt(representativeToolForHistory.quantityStock) || 0) +
-                                     (parseInt(representativeToolForHistory.quantityBorrowed) || 0);
-
-            let unitsRegisteredInHistory = 0;
-            for (let unitNumber = 1; unitNumber <= totalPhysicalUnits && unitsRegisteredInHistory < quantity; unitNumber++) {
-                const key = `${historyKeyToolId}_${unitNumber}`;
-                let isUnitAvailableForLoan = true;
-                if (window.loanHistory && window.loanHistory[key] && window.loanHistory[key].length > 0) {
-                    const unitHistorySorted = [...window.loanHistory[key]].sort((a, b) => new Date(b.date) - new Date(a.date));
-                    const lastEvent = unitHistorySorted[0];
-                    if (lastEvent.action === 'loan') {
-                        isUnitAvailableForLoan = false; // La unidad ya está prestada según su historial
-                    }
-                }
-
-                if (isUnitAvailableForLoan) {
-                    window.registerLoanEvent(historyKeyToolId, unitNumber, 'loan', personName);
-                    unitsRegisteredInHistory++;
-                }
-            }
-            if (unitsRegisteredInHistory < quantity) {
-                console.warn(`Se intentaron prestar ${quantity} unidades de "${tool.name}" a ${personName}, pero solo se pudieron registrar ${unitsRegisteredInHistory} en loanHistory como préstamos de unidades específicas. Esto puede indicar una falta de unidades "virtuales" disponibles en loanHistory o una desincronización.`);
-            }
-        } else {
-            console.warn(`No se pudo encontrar una herramienta representativa para "${tool.name}" para actualizar loanHistory durante el préstamo.`);
-        }
-        // --- Fin de la lógica para actualizar loanHistory ---
-        
-        // Guardar cambios
-        updateToolsAfterAssignment();
-        
-        return true;
-    }
     
-    function removeToolFromPerson(personName, toolId) {
-        // Encontrar la herramienta específica asignada a esta persona
-        const toolAssignedIndex = tools.findIndex(t => t.id === toolId && t.assignedTo === personName);
-        if (toolAssignedIndex === -1) {
-            console.error(`Error interno: No se encontró la herramienta con ID ${toolId} asignada a ${personName} para devolver.`);
-            alert("Error: No se pudo encontrar el registro de préstamo para esta devolución.");
-            return false;
-        }
-        const toolAssigned = tools[toolAssignedIndex]; // Este es el objeto que representa el préstamo
-
-        const returnedQuantity = parseInt(toolAssigned.quantityBorrowed) || 0;
-
-        if (returnedQuantity === 0) {
-            // Esto podría ocurrir si los datos son inconsistentes.
-            // Aún así, permitimos "limpiar" la asignación.
-            console.warn(`La herramienta "${toolAssigned.name}" (ID de préstamo: ${toolId}) indica 0 unidades prestadas a ${personName}, pero se intentó una devolución.`);
-        }
-
-        const confirmReturn = window.confirm(
-            `¿Devolver ${returnedQuantity > 0 ? returnedQuantity : 'todas las'} unidades de "${toolAssigned.name}" asignadas a ${personName} al almacén?`
-        );
-
-        if (!confirmReturn) return false;
-
-        // --- Lógica para actualizar loanHistory ---
-        const toolName = toolAssigned.name;
-        const representativeTool = window.tools.find(t => t.name === toolName); // La primera que encuentra con ese nombre, usada en renderTools.
-
-        if (representativeTool && returnedQuantity > 0) {
-            const historyKeyToolId = representativeTool.id;
-
-            // Calcular el total de unidades físicas que existen para este tipo de herramienta (usando la herramienta representativa)
-            // Esto es crucial para saber hasta dónde iterar al buscar las unidades en loanHistory.
-            // Sumamos stock y prestado de la herramienta representativa ANTES de que se modifique por esta devolución.
-            const totalPhysicalUnitsForType = (parseInt(representativeTool.quantityStock) || 0) +
-                                            (parseInt(representativeTool.quantityBorrowed) || 0);
-
-            let unitsInHistoryUpdated = 0;
-            for (let unitNumber = 1; unitNumber <= totalPhysicalUnitsForType && unitsInHistoryUpdated < returnedQuantity; unitNumber++) {
-                const key = `${historyKeyToolId}_${unitNumber}`;
-                if (window.loanHistory && window.loanHistory[key] && window.loanHistory[key].length > 0) {
-                    const unitHistorySorted = [...window.loanHistory[key]].sort((a, b) => new Date(b.date) - new Date(a.date));
-                    const lastEvent = unitHistorySorted[0];
-
-                    if (lastEvent.action === 'loan' && lastEvent.person === personName) {
-                        window.registerLoanEvent(historyKeyToolId, unitNumber, 'return', personName);
-                        unitsInHistoryUpdated++;
-                    }
-                }
-            }
-
-            if (unitsInHistoryUpdated < returnedQuantity) {
-                console.warn(`Se esperaba devolver ${returnedQuantity} unidades de "${toolName}" para ${personName} y se actualizaron ${unitsInHistoryUpdated} en loanHistory. Puede haber una discrepancia o unidades ya devueltas no reflejadas en quantityBorrowed.`);
-            }
-        } else if (returnedQuantity > 0) {
-            console.warn(`No se pudo encontrar una herramienta representativa para "${toolName}" para actualizar loanHistory.`);
-        }
-        // --- Fin de la lógica para actualizar loanHistory ---
-
-        // Actualizar cantidades en las herramientas
-        // 1. La herramienta de stock principal (o la representativa) debe incrementar su stock.
-        let mainStockTool = window.tools.find(t => t.name === toolName && (!t.assignedTo || t.assignedTo === "" || t.quantityStock > 0 && t.id === representativeTool?.id));
-        if (!mainStockTool && representativeTool) { // Si no hay una clara de stock, usar la representativa
-            mainStockTool = representativeTool;
-        } else if (!mainStockTool) { // Si ni siquiera hay representativa (muy raro), usar la actual
-            mainStockTool = toolAssigned;
-        }
-        
-        mainStockTool.quantityStock = (parseInt(mainStockTool.quantityStock) || 0) + returnedQuantity;
-        mainStockTool._modified = true;
-
-        // 2. El objeto 'toolAssigned' (que representa este préstamo específico) debe reflejar que ya no tiene unidades prestadas.
-        // Si toolAssigned es diferente de mainStockTool, significa que toolAssigned era probablemente un clon/registro de préstamo.
-        if (toolAssigned.id !== mainStockTool.id) {
-            toolAssigned.quantityBorrowed = 0;
-            toolAssigned.assignedTo = '';
-            toolAssigned.note = '';
-            toolAssigned._modified = true;
-        } else { // Si toolAssigned ES mainStockTool, entonces reducimos su 'quantityBorrowed'
-            mainStockTool.quantityBorrowed = (parseInt(mainStockTool.quantityBorrowed) || 0) - returnedQuantity;
-            if (mainStockTool.quantityBorrowed < 0) {
-                mainStockTool.quantityBorrowed = 0;
-            }
-            // Si después de devolver, esta herramienta (que es la de stock) ya no tiene nada prestado A NADIE MÁS
-            // y su 'assignedTo' era esta persona, limpiarlo.
-            if (mainStockTool.quantityBorrowed === 0 && mainStockTool.assignedTo === personName) {
-                mainStockTool.assignedTo = '';
-                mainStockTool.note = '';
-            }
-        }
-        
-        // Limpiar el array de herramientas eliminando las que son clones de asignación y ya no tienen items prestados
-        // Esto es opcional y depende de cómo se quiera manejar la persistencia de estos clones.
-        // Por ahora, no los eliminaremos, solo los dejaremos con quantityBorrowed = 0.
-        // Si se quisiera eliminar:
-        // if (toolAssigned.id !== mainStockTool.id && toolAssigned.quantityBorrowed === 0) {
-        //     tools.splice(toolAssignedIndex, 1);
-        // }
-
-
-        updateToolsAfterAssignment(); // Llama a la función local que NO recarga la página
-        return true;
-    }
+    
+    
+    
+    
+    
 
     // --- Funciones de Eventos ---
     if (loginForm) {
@@ -1448,16 +905,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Solo administradores pueden añadir herramientas.');
                 return;
             }
+
+            const totalUnits = parseInt(document.getElementById('tool-total-units').value) || 1;
             const toolData = {
                 name: document.getElementById('tool-name').value,
                 description: document.getElementById('tool-description').value,
                 category: document.getElementById('tool-category').value.trim(),
                 acquisitionDate: document.getElementById('tool-acquisition-date').value,
                 location: document.getElementById('tool-location').value.trim(),
-                assignedTo: document.getElementById('tool-assigned-to').value.trim(),
-                quantityStock: parseInt(document.getElementById('tool-quantity-stock').value) || 0,
-                quantityBorrowed: parseInt(document.getElementById('tool-quantity-borrowed').value) || 0,
-                image: document.getElementById('tool-image').value.trim() // trim para evitar URLs con espacios
+                quantityStock: totalUnits,
+                quantityBorrowed: 0,
+                image: document.getElementById('tool-image').value.trim(),
+                defaultMaintenanceInterval: {
+                    value: parseInt(document.getElementById('tool-default-maintenance-interval-value').value) || 0,
+                    unit: document.getElementById('tool-default-maintenance-interval-unit').value
+                },
+                defaultCalibrationInterval: {
+                    value: parseInt(document.getElementById('tool-default-calibration-interval-value').value) || 0,
+                    unit: document.getElementById('tool-default-calibration-interval-unit').value
+                }
             };
             addTool(toolData);
         });
@@ -1474,7 +940,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 category: editToolCategoryInput.value.trim(),
                 acquisitionDate: editToolAcquisitionDateInput.value,
                 location: editToolLocationInput.value.trim(),
-                assignedTo: editToolAssignedToInput.value,
                 quantityStock: parseInt(editToolQuantityStockInput.value) || 0,
                 quantityBorrowed: parseInt(editToolQuantityBorrowedInput.value) || 0,
                 image: editToolImageInput.value.trim()
@@ -1496,17 +961,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const toolToEdit = tools.find(tool => tool.id === toolId);
         if (!toolToEdit) return;
         
-        editToolIdInput.value = toolToEdit.id;
-        editToolNameInput.value = toolToEdit.name;
-        editToolDescriptionInput.value = toolToEdit.description || '';
-        editToolCategoryInput.value = toolToEdit.category || '';
-        editToolAcquisitionDateInput.value = toolToEdit.acquisitionDate || '';
-        editToolLocationInput.value = toolToEdit.location || '';
-        editToolAssignedToInput.value = toolToEdit.assignedTo || '';
-        editToolQuantityStockInput.value = toolToEdit.quantityStock || 0;
-        editToolQuantityBorrowedInput.value = toolToEdit.quantityBorrowed || 0;
-        editToolImageInput.value = toolToEdit.image || '';
-        if (editToolModal) editToolModal.style.display = 'flex';
+        // Verificar que todos los elementos existan antes de usarlos
+        const elements = {
+            editToolIdInput: document.getElementById('edit-tool-id'),
+            editToolNameInput: document.getElementById('edit-tool-name'),
+            editToolDescriptionInput: document.getElementById('edit-tool-description'),
+            editToolCategoryInput: document.getElementById('edit-tool-category'),
+            editToolAcquisitionDateInput: document.getElementById('edit-tool-acquisition-date'),
+            editToolLocationInput: document.getElementById('edit-tool-location'),
+            editToolImageInput: document.getElementById('edit-tool-image'),
+            editToolQuantityStockInput: document.getElementById('edit-tool-quantity-stock'),
+            editToolQuantityBorrowedInput: document.getElementById('edit-tool-quantity-borrowed'),
+            editToolModal: document.getElementById('edit-tool-modal')
+        };
+
+        // Verificar que todos los elementos existan
+        for (const [key, element] of Object.entries(elements)) {
+            if (!element) {
+                console.error(`Elemento no encontrado: ${key}`);
+                return;
+            }
+        }
+
+        // Si todos los elementos existen, proceder con la edición
+        elements.editToolIdInput.value = toolToEdit.id;
+        elements.editToolNameInput.value = toolToEdit.name;
+        elements.editToolDescriptionInput.value = toolToEdit.description || '';
+        elements.editToolCategoryInput.value = toolToEdit.category || '';
+        elements.editToolAcquisitionDateInput.value = toolToEdit.acquisitionDate || '';
+        elements.editToolLocationInput.value = toolToEdit.location || '';
+        elements.editToolQuantityStockInput.value = toolToEdit.quantityStock || 0;
+        elements.editToolQuantityBorrowedInput.value = toolToEdit.quantityBorrowed || 0;
+        elements.editToolImageInput.value = toolToEdit.image || '';
+        elements.editToolModal.style.display = 'flex';
     }
 
     window.closeEditModal = function() { // Hacerla global para el botón en HTML
@@ -1516,8 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inicialización de la aplicación ---
     function initializeApp() {
         // Cargar datos guardados
-        loadPeopleFromStorage();
-        loadLoanHistory(); // Cargar historial de préstamos
+        loadLoanHistory(); 
         
         // Asegurar que los campos de entrada sean interactivos
         if (usernameInput) usernameInput.readOnly = false;
@@ -1536,49 +1022,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Eventos para personas
-        if (addPersonBtn) {
-            addPersonBtn.addEventListener('click', () => {
-                if (addPersonModal) addPersonModal.style.display = 'flex';
-            });
-        }
-        
-        if (addPersonForm) {
-            addPersonForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const personData = {
-                    name: document.getElementById('person-name').value,
-                    position: document.getElementById('person-position').value,
-                    department: document.getElementById('person-department').value
-                };
-                
-                if (addPerson(personData)) {
-                    closeAddPersonModal();
-                    addPersonForm.reset();
-                }
-            });
-        }
-        
-        if (assignToolForm) {
-            assignToolForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const personName = assignToPersonInput.value;
-                const toolId = assignToolSelect.value;
-                const quantity = assignQuantityInput.value;
-                const note = document.getElementById('assign-note').value;
-                
-                if (assignToolToPerson(personName, toolId, quantity, note)) {
-                    closeAssignToolModal();
-                    assignToolForm.reset();
-                }
-            });
-        }
-        
-        // Evento para búsqueda de personas
-        if (searchPersonInput) {
-            searchPersonInput.addEventListener('input', (e) => {
-                renderAssignedPeople(e.target.value);
-            });
-        }
+        // if (addPersonBtn) {
+        //     addPersonBtn.addEventListener('click', () => { ... });
+        // }
+        // if (addPersonForm) {
+        //     addPersonForm.addEventListener('submit', (e) => { ... });
+        // }
+        // if (assignToolForm) {
+        //     assignToolForm.addEventListener('submit', (e) => { ... });
+        // }
+        // if (searchPersonInput) {
+        //     searchPersonInput.addEventListener('input', (e) => { ... });
+        // }
+        // ... (resto de initializeApp se mantiene) ...
         
         // Eventos para las pestañas
         tabButtons.forEach(button => {
@@ -1612,7 +1068,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.toolsData = tools;
     window.loanHistory = loanHistory;
     window.tools = tools; 
-    window.people = people;
     window.API_BASE_URL = API_BASE_URL;
     
     // Hacer que generateSerial sea accesible globalmente
@@ -1675,19 +1130,24 @@ function closeEditModal() {
 
 // Función para sincronizar datos locales con el servidor
 async function syncTools() {
-    // Esta es una versión simplificada, en un entorno real habría más lógica
-    // para manejar conflictos y sincronizar correctamente
     try {
         // Por cada herramienta modificada, enviar actualización al servidor
         for (const tool of window.tools) {
             if (tool._modified) {
                 try {
-                    // DEBUG: Verificar el token antes de la llamada
-                    console.log('Syncing tool:', tool.id, ' appCurrentUser:', JSON.stringify(window.appCurrentUser)); 
-                    if (!window.appCurrentUser || !window.appCurrentUser.token) {
-                        console.error('¡SIN TOKEN o appCurrentUser para syncTools! Abortando sincronización para esta herramienta.', tool.id);
-                        continue; // Saltar esta herramienta si no hay token
+                    // Verificar que el ID de la herramienta sea válido
+                    if (!tool.id || typeof tool.id !== 'string') {
+                        console.warn('ID de herramienta inválido:', tool);
+                        continue;
                     }
+
+                    // Verificar que el token esté disponible
+                    if (!window.appCurrentUser || !window.appCurrentUser.token) {
+                        console.error('No hay token disponible para sincronización');
+                        continue;
+                    }
+
+                    console.log('Sincronizando herramienta:', tool.id);
                     await window.apiRequest(`/tools/${tool.id}`, 'PUT', tool);
                     tool._modified = false;
                 } catch (error) {
@@ -1698,7 +1158,6 @@ async function syncTools() {
         }
     } catch (error) {
         console.warn('Error general en syncTools:', error);
-        // No lanzamos el error para que la aplicación siga funcionando
     }
 }
 
@@ -2135,25 +1594,22 @@ function showAssignPersonModal(toolId, unitNumber) {
         return;
     }
     
-    // Cargar opciones de personas para el desplegable
-    let personOptionsHTML = '';
-    
-    try {
-        // Cargar personas desde localStorage
-        const people = window.appPeople || window.loadPeopleFromStorage() || [];
-        
-        if (people && people.length > 0) {
-            // Ordenar alfabéticamente
-            const sortedPeople = [...people].sort((a, b) => a.name.localeCompare(b.name));
-            
-            // Generar opciones HTML
-            personOptionsHTML = sortedPeople.map(person => 
-                `<option value="${person.name}">${person.name}</option>`
-            ).join('');
-        }
-    } catch (error) {
-        console.error('Error al cargar las personas:', error);
-    }
+    // Cargar opciones de personas para el desplegable - ELIMINADO
+    // let personOptionsHTML = ''; // ELIMINADO
+    // try { // ELIMINADO
+        // Cargar personas desde localStorage // ELIMINADO
+        // const people = window.appPeople || window.loadPeopleFromStorage() || []; // ELIMINADO
+        // if (people && people.length > 0) { // ELIMINADO
+            // Ordenar alfabéticamente // ELIMINADO
+            // const sortedPeople = [...people].sort((a, b) => a.name.localeCompare(b.name)); // ELIMINADO
+            // Generar opciones HTML // ELIMINADO
+            // personOptionsHTML = sortedPeople.map(person =>  // ELIMINADO
+            //     `<option value="${person.name}">${person.name}</option>` // ELIMINADO
+            // ).join(''); // ELIMINADO
+        // } // ELIMINADO
+    // } catch (error) { // ELIMINADO
+    //     console.error('Error al cargar las personas:', error); // ELIMINADO
+    // } // ELIMINADO
     
     // Crear HTML para el modal
     const modalHTML = `
@@ -2166,16 +1622,8 @@ function showAssignPersonModal(toolId, unitNumber) {
                     <input type="hidden" id="assign-unit-number" value="${unitNumber}">
                     
                     <div>
-                        <label for="assign-person-select">Seleccionar Persona:</label>
-                        <select id="assign-person-select">
-                            <option value="">-- Seleccione una persona --</option>
-                            ${personOptionsHTML}
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="assign-person-name">O ingresar nuevo nombre:</label>
-                        <input type="text" id="assign-person-name" placeholder="Nombre de la persona">
+                        <label for="assign-person-name">Ingresar nombre de la persona:</label>
+                        <input type="text" id="assign-person-name" placeholder="Nombre de la persona" required>
                     </div>
                     
                     <div>
@@ -2206,18 +1654,14 @@ function showAssignPersonModal(toolId, unitNumber) {
             const unitNumber = parseInt(document.getElementById('assign-unit-number').value);
             let personName = '';
             
-            // Obtener el nombre de la persona (del select o del input)
-            const personSelect = document.getElementById('assign-person-select');
+            // Obtener el nombre de la persona (del input)
             const personInput = document.getElementById('assign-person-name');
             
-            if (personSelect.value) {
-                personName = personSelect.value;
-            } else if (personInput.value.trim()) {
+            if (personInput.value.trim()) {
                 personName = personInput.value.trim();
-                // Añadir la nueva persona a la lista de personas
-                addPersonIfNew(personName);
+                // addPersonIfNew(personName); // LLAMADA ELIMINADA
             } else {
-                alert('Por favor, seleccione o ingrese el nombre de una persona');
+                alert('Por favor, ingrese el nombre de una persona');
                 return;
             }
             
@@ -2237,8 +1681,8 @@ function showAssignPersonModal(toolId, unitNumber) {
     }
 }
 
-// Añadir una nueva persona si no existe
-function addPersonIfNew(personName) {
+// Añadir una nueva persona si no existe // FUNCIÓN ELIMINADA
+/* function addPersonIfNew(personName) { // ELIMINAR BLOQUE ENTERO
     const people = window.appPeople || window.loadPeopleFromStorage() || [];
     
     if (!people.some(p => p.name.toLowerCase() === personName.toLowerCase())) {
@@ -2252,7 +1696,7 @@ function addPersonIfNew(personName) {
         window.appPeople = people;
         localStorage.setItem('toolTrackerPeople', JSON.stringify(people));
     }
-}
+} */
 
 // Cerrar el modal de asignación de persona
 window.closeAssignPersonModal = function() {
@@ -2288,57 +1732,6 @@ function returnUnitToStock(toolId, unitNumber, person) {
     
     return true;
 }
-
-// Añadir este código al final del archivo para asegurar que los eventos se registren correctamente
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar la aplicación
-    initializeApp();
-    
-    // Hacer que los datos sean accesibles globalmente
-    window.toolsData = tools;
-    window.loanHistory = loanHistory;
-    window.tools = tools; 
-    window.people = people;
-    window.API_BASE_URL = API_BASE_URL;
-    
-    // Hacer que generateSerial sea accesible globalmente
-    window.generateSerial = generateSerial;
-    
-    // No añadimos delegación de eventos para los selectores de unidades
-    // porque eso causa que el modal se abra automáticamente al seleccionar una opción
-}); 
-
-// Crear estilos para los nuevos botones de edición
-const styleEl = document.createElement('style');
-styleEl.textContent = `
-    .editable-detail {
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-    }
-    
-    .editable-detail strong {
-        margin-right: 5px;
-    }
-    
-    .editable-detail span {
-        margin-right: 10px;
-    }
-    
-    .edit-field-btn {
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        padding: 2px 5px;
-        font-size: 0.8em;
-        cursor: pointer;
-    }
-    
-    .edit-field-btn:hover {
-        background-color: #e0e0e0;
-    }
-`;
-document.head.appendChild(styleEl);
 
 // Función para actualizar las herramientas después de una asignación
 function updateToolsAfterAssignment() {
@@ -2528,22 +1921,4 @@ function assignSpecificUnitToPerson(toolId, unitNumber, personName, note) {
     location.reload();
     
     return true;
-}
-
-// Cargar opciones de personas para el select
-function loadPersonOptions() {
-    // Cargar personas desde localStorage usando la función global
-    const people = window.appPeople || window.loadPeopleFromStorage() || [];
-    
-    if (!people || people.length === 0) {
-        return '';
-    }
-    
-    // Ordenar alfabéticamente
-    const sortedPeople = [...people].sort((a, b) => a.name.localeCompare(b.name));
-    
-    // Generar opciones HTML
-    return sortedPeople.map(person => 
-        `<option value="${person.name}">${person.name}</option>`
-    ).join('');
 }

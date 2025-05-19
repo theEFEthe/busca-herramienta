@@ -17,18 +17,34 @@
     {
       "id": "1747159960897",
       "name": "Taladro Inalámbrico",
-      "description": "M12",
+      "description": "marca Milwauke",
       "category": "eléctrica",
-      "acquisitionDate": "2020-12-11",
+      "acquisitionDate": "2020-12-12",
       "location": "Bello",
-      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/taladro%20inalambrico.jpg",
+      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/taladro%20inalambrico.jpg?v=1.0.0",
       "quantity": 3,
-      "assignedTo": "Diego",
-      "quantityStock": 2,
-      "quantityBorrowed": 4,
+      "assignedTo": "Natalie",
+      "quantityStock": 3,
+      "quantityBorrowed": 1,
       "_modified": true,
-      "customSerial": "1",
-      "note": ""
+      "customSerial": "01",
+      "note": "",
+      "defaultMaintenanceInterval": 6,
+      "defaultMaintenanceIntervalUnit": "meses",
+      "defaultCalibrationInterval": 12,
+      "defaultCalibrationIntervalUnit": "meses",
+      "units": [
+        {
+          "id": "TAL-001",
+          "serialNumber": "TAL-001",
+          "status": "disponible",
+          "lastMaintenance": "2024-01-15",
+          "nextMaintenance": "2024-07-15",
+          "lastCalibration": "2024-01-15",
+          "nextCalibration": "2025-01-15",
+          "notes": "Nuevo taladro inalámbrico de 20V"
+        }
+      ]
     },
     {
       "id": "1747160006835",
@@ -37,11 +53,27 @@
       "category": "eléctrica",
       "acquisitionDate": "2020-12-10",
       "location": "Poblado",
-      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/Taladro%20DeWalt.webp",
+      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/Taladro%20DeWalt.webp?v=1.0.0",
       "quantity": 1,
       "assignedTo": "",
       "quantityStock": 10,
-      "quantityBorrowed": 0
+      "quantityBorrowed": 0,
+      "defaultMaintenanceInterval": 6,
+      "defaultMaintenanceIntervalUnit": "meses",
+      "defaultCalibrationInterval": 12,
+      "defaultCalibrationIntervalUnit": "meses",
+      "units": [
+        {
+          "id": "TAL-002",
+          "serialNumber": "TAL-002",
+          "status": "disponible",
+          "lastMaintenance": "2024-01-15",
+          "nextMaintenance": "2024-07-15",
+          "lastCalibration": "2024-01-15",
+          "nextCalibration": "2025-01-15",
+          "notes": "Taladro DeWalt de 800W"
+        }
+      ]
     },
     {
       "id": "1747160039896",
@@ -50,12 +82,29 @@
       "category": "manual",
       "acquisitionDate": "2020-12-10",
       "location": "Bello",
-      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/destornillador%20de%20estrella.png",
+      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/destornillador%20de%20estrella.png?v=1.0.0",
       "quantity": 1,
-      "assignedTo": "Juan",
-      "quantityStock": 5,
-      "quantityBorrowed": 15,
-      "_modified": true
+      "assignedTo": "",
+      "quantityStock": 35,
+      "quantityBorrowed": 0,
+      "_modified": true,
+      "note": "",
+      "defaultMaintenanceInterval": 12,
+      "defaultMaintenanceIntervalUnit": "meses",
+      "defaultCalibrationInterval": 24,
+      "defaultCalibrationIntervalUnit": "meses",
+      "units": [
+        {
+          "id": "DES-001",
+          "serialNumber": "DES-001",
+          "status": "disponible",
+          "lastMaintenance": "2024-01-15",
+          "nextMaintenance": "2025-01-15",
+          "lastCalibration": "2024-01-15",
+          "nextCalibration": "2026-01-15",
+          "notes": "Destornillador de estrella #2"
+        }
+      ]
     },
     {
       "id": "1747169553215",
@@ -65,18 +114,45 @@
       "acquisitionDate": "2024-03-13",
       "location": "Bello",
       "quantity": 3,
-      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/cautin%20wm120%2012w.png"
+      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/cautin%20wm120%2012w.png?v=1.0.0",
+      "defaultMaintenanceInterval": 3,
+      "defaultMaintenanceIntervalUnit": "meses",
+      "defaultCalibrationInterval": 6,
+      "defaultCalibrationIntervalUnit": "meses",
+      "units": [
+        {
+          "id": "CAU-001",
+          "serialNumber": "CAU-001",
+          "status": "disponible",
+          "lastMaintenance": "2024-01-15",
+          "nextMaintenance": "2024-04-15",
+          "lastCalibration": "2024-01-15",
+          "nextCalibration": "2024-07-15",
+          "notes": "Cautín de 12W para electrónica"
+        }
+      ],
+      "quantityStock": 1,
+      "quantityBorrowed": 0
     },
     {
-      "id": "1747237468928",
+      "id": "1747659099029",
       "name": "corta frio",
-      "description": "aislado",
+      "description": "sin marca",
       "category": "manual",
-      "acquisitionDate": "2023-12-10",
+      "acquisitionDate": "2025-05-12",
       "location": "Bello",
-      "assignedTo": "Diego",
-      "quantity": 1,
-      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/cortafrio-aislado-1.jpg"
+      "quantityStock": 1,
+      "quantityBorrowed": 0,
+      "image": "https://raw.githubusercontent.com/theEFEthe/busca-herramienta/refs/heads/main/Imagenes/herramientas/cortafrio-aislado-1.jpg",
+      "defaultMaintenanceInterval": {
+        "value": 6,
+        "unit": "months"
+      },
+      "defaultCalibrationInterval": {
+        "value": 0,
+        "unit": "months"
+      }
     }
-  ]
+  ],
+  "loans": []
 }

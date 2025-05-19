@@ -26,8 +26,53 @@ app.use((req, res, next) => {
     next();
 });
 
-// Servir archivos estáticos del frontend desde la carpeta 'public'
-app.use(express.static(path.join(__dirname, 'public')));
+// Configuración de seguridad y caché
+app.use((req, res, next) => {
+    // Configurar CSP con versiones específicas para caché
+    res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data: https: https://raw.githubusercontent.com; " +
+        "frame-ancestors 'none';"
+    );
+
+    // Configurar caché con versiones
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 año para recursos estáticos
+
+    // Eliminar headers innecesarios
+    res.removeHeader('X-Frame-Options');
+    res.removeHeader('X-XSS-Protection');
+    res.removeHeader('Expires');
+
+    next();
+});
+
+// Configuración específica para archivos estáticos
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, path) => {
+        // Añadir versión al nombre del archivo para cache busting
+        if (path.endsWith('.css')) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+    }
+}));
+
+// Configuración específica para rutas API
+app.use('/api', (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+});
+
+// Servir favicon con el tipo MIME correcto y caché
+app.get('/favicon.ico', (req, res) => {
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.sendFile(path.join(__dirname, 'public', 'favicon.ico'));
+});
 
 // --- Funciones Auxiliares para la BD ---
 async function readDB() {
@@ -213,6 +258,41 @@ app.delete('/api/tools/:id', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error(`<-- DELETE /api/tools/${toolId}: Error interno:`, error);
         res.status(500).json({ message: 'Error interno al eliminar herramienta' });
+    }
+});
+
+// Ruta para borrar el historial de préstamos de una herramienta
+app.post('/api/tools/:id/clear-loan-history', authenticateToken, async (req, res) => {
+    const toolId = req.params.id;
+    console.log(`--> POST /api/tools/${toolId}/clear-loan-history: Recibida petición de ${req.user.username}`);
+
+    try {
+        const db = await readDB();
+        const toolIndex = db.tools.findIndex(t => t.id === toolId);
+
+        if (toolIndex === -1) {
+            console.log(`<-- POST /api/tools/${toolId}/clear-loan-history: Herramienta no encontrada.`);
+            return res.status(404).json({ message: 'Herramienta no encontrada' });
+        }
+
+        // Borrar el historial de préstamos
+        db.tools[toolIndex].loanHistory = [];
+        
+        // Actualizar el estado de las unidades
+        if (db.tools[toolIndex].units) {
+            db.tools[toolIndex].units.forEach(unit => {
+                unit.assignedTo = '';
+                unit.loanDate = '';
+                unit.returnDate = '';
+            });
+        }
+
+        await writeDB(db);
+        console.log(`<-- POST /api/tools/${toolId}/clear-loan-history: Historial borrado por ${req.user.username}.`);
+        res.status(200).json({ message: 'Historial de préstamos borrado exitosamente' });
+    } catch (error) {
+        console.error(`<-- POST /api/tools/${toolId}/clear-loan-history: Error interno:`, error);
+        res.status(500).json({ message: 'Error interno al borrar el historial' });
     }
 });
 

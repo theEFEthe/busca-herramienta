@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToolTracker</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Biblioteca para generar códigos de barras -->
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <link rel="stylesheet" href="style.css?v=1.0.0">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAbwAAAG8B8aLcQwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAB8SURBVDiNY2AYBYMRMDIyMjAyMjL8//+f4f///wz//v1j+P//P8P///8Z/v//z/D//3+G////M/z//5/h////DP///2f4//8/w////xn+///P8P//f4b///8z/P//n+H///8M////Z/j//z/D////Gf7//8/w//9/hv///zP8//+f4f///wz///9n+P//P8P///8Z/v//z/D//3+G////DADQYwQZqQjT5QAAAABJRU5ErkJggg==">
+    <!-- Biblioteca para generar códigos de barras con versión específica -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js?v=3.11.5"></script>
 </head>
 <body>
     <header>
         <h1>ToolTracker</h1>
         <div id="user-session-controls">
             <span id="logged-in-user-info"></span>
+            <button id="change-password-button" style="display:none; margin-left: 10px;">Cambiar Contraseña</button>
             <button id="logout-button" style="display:none;">Cerrar Sesión</button>
         </div>
     </header>
@@ -21,7 +23,7 @@
     <div id="login-modal" class="modal" style="display: flex;"> <!-- Inicialmente visible -->
         <div class="modal-content">
             <h2>Iniciar Sesión</h2>
-            <form id="login-form">
+            <form id="login-form">  <!-- SIN action, SIN method -->
                 <div>
                     <label for="username">Usuario:</label>
                     <input type="text" id="username" name="username" required autocomplete="username">
@@ -42,52 +44,71 @@
             <div class="tabs">
                 <button class="tab-button active" data-tab="catalog">Catálogo de Herramientas</button>
                 <button class="tab-button" data-tab="add" id="add-tab-button">Añadir Nueva Herramienta</button>
-                <button class="tab-button" data-tab="assigned">Personas a Cargo</button>
+                <button class="tab-button" data-tab="maintenance" id="maintenance-tab-button" style="display:none;">Mantenimiento/Calibración</button>
             </div>
         </div>
 
-        <section id="add-tool-section" style="display:none;"> <!-- Oculto hasta que el rol sea admin -->
+        <section id="add-tool-section" style="display:none;">
             <h2>Añadir Nueva Herramienta</h2>
             <form id="add-tool-form">
                 <div>
                     <label for="tool-name">Nombre:</label>
-                    <input type="text" id="tool-name" name="tool-name" required>
+                    <input type="text" id="tool-name" required>
                 </div>
                 <div>
                     <label for="tool-description">Descripción:</label>
-                    <textarea id="tool-description" name="tool-description"></textarea>
+                    <textarea id="tool-description"></textarea>
                 </div>
                 <div>
                     <label for="tool-category">Categoría:</label>
-                    <input type="text" id="tool-category" name="tool-category">
+                    <input type="text" id="tool-category">
                 </div>
                 <div>
                     <label for="tool-acquisition-date">Fecha de Adquisición:</label>
-                    <input type="date" id="tool-acquisition-date" name="tool-acquisition-date">
+                    <input type="date" id="tool-acquisition-date">
                 </div>
                 <div>
                     <label for="tool-location">Ubicación:</label>
-                    <input type="text" id="tool-location" name="tool-location">
+                    <input type="text" id="tool-location">
                 </div>
                 <div>
-                    <label for="tool-assigned-to">A cargo de:</label>
-                    <input type="text" id="tool-assigned-to" name="tool-assigned-to" placeholder="Nombre de la persona a cargo">
-                </div>
-                <div class="quantity-fields">
-                    <div>
-                        <label for="tool-quantity-stock">Cantidad en Almacén:</label>
-                        <input type="number" id="tool-quantity-stock" name="tool-quantity-stock" min="0" value="1">
-                    </div>
-                    <div>
-                        <label for="tool-quantity-borrowed">Cantidad Prestada:</label>
-                        <input type="number" id="tool-quantity-borrowed" name="tool-quantity-borrowed" min="0" value="0">
-                    </div>
+                    <label for="tool-image">URL de Imagen:</label>
+                    <input type="url" id="tool-image" placeholder="https://example.com/image.png">
                 </div>
                 <div>
-                    <label for="tool-image">Imagen (URL):</label>
-                    <input type="url" id="tool-image" name="tool-image" placeholder="https://ejemplo.com/imagen.jpg">
+                    <label for="tool-total-units">Total de Unidades:</label>
+                    <input type="number" id="tool-total-units" min="1" value="1" required>
                 </div>
-                <button type="submit">Añadir Herramienta</button>
+
+                <fieldset>
+                    <legend>Intervalos de Mantenimiento por Defecto (para nuevas unidades)</legend>
+                    <div>
+                        <label for="tool-default-maintenance-interval-value">Intervalo Mant.:</label>
+                        <input type="number" id="tool-default-maintenance-interval-value" min="1" placeholder="Ej: 6">
+                        <select id="tool-default-maintenance-interval-unit" aria-label="Unidad de intervalo de mantenimiento" title="Seleccione la unidad de tiempo para el intervalo de mantenimiento">
+                            <option value="days">Días</option>
+                            <option value="weeks">Semanas</option>
+                            <option value="months" selected>Meses</option>
+                            <option value="years">Años</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Intervalos de Calibración por Defecto (para nuevas unidades)</legend>
+                    <div>
+                        <label for="tool-default-calibration-interval-value">Intervalo Calib.:</label>
+                        <input type="number" id="tool-default-calibration-interval-value" min="1" placeholder="Ej: 12">
+                        <select id="tool-default-calibration-interval-unit" aria-label="Unidad de intervalo de calibración" title="Seleccione la unidad de tiempo para el intervalo de calibración">
+                            <option value="days">Días</option>
+                            <option value="weeks">Semanas</option>
+                            <option value="months" selected>Meses</option>
+                            <option value="years">Años</option>
+                        </select>
+                    </div>
+                </fieldset>
+                
+                <button type="submit" class="button-primary">Añadir Herramienta</button>
             </form>
 
             <div id="admin-advanced-actions" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
@@ -102,10 +123,10 @@
             <h2>Catálogo de Herramientas</h2>
             <div id="tool-filters">
                 <input type="text" id="search-name" placeholder="Buscar por nombre...">
-                <select id="search-category">
+                <select id="search-category" aria-label="Filtrar por categoría" title="Seleccione una categoría para filtrar">
                     <option value="">-- Todas las Categorías --</option>
                 </select>
-                <select id="search-location">
+                <select id="search-location" aria-label="Filtrar por ubicación" title="Seleccione una ubicación para filtrar">
                     <option value="">-- Todas las Ubicaciones --</option>
                 </select>
             </div>
@@ -115,72 +136,34 @@
             </div>
         </section>
 
-        <section id="assigned-people-section" style="display:none;">
-            <h2>Personas a Cargo de Herramientas</h2>
-            
-            <div class="section-actions">
-                <button id="add-person-btn">Añadir Nueva Persona</button>
+        <section id="maintenance-section" style="display:none;">
+            <h2>Registro de Mantenimiento y Calibración</h2>
+            <div id="maintenance-tool-selector-container">
+                <label for="maintenance-tool-select">Seleccionar Herramienta:</label>
+                <select id="maintenance-tool-select">
+                    <option value="">-- Cargando herramientas... --</option>
+                </select>
             </div>
-            
-            <div id="people-filters">
-                <input type="text" id="search-person" placeholder="Buscar por nombre de persona...">
-            </div>
-            
-            <div id="people-list-container">
-                <!-- Las personas y sus herramientas se mostrarán aquí -->
-                <p>Cargando información de asignaciones...</p>
-            </div>
-            
-            <!-- Modal para añadir nueva persona -->
-            <div id="add-person-modal" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <span class="close-button" onclick="closeAddPersonModal()">&times;</span>
-                    <h2>Añadir Nueva Persona</h2>
-                    <form id="add-person-form">
-                        <div>
-                            <label for="person-name">Nombre:</label>
-                            <input type="text" id="person-name" name="person-name" required placeholder="Nombre completo">
-                        </div>
-                        <div>
-                            <label for="person-position">Cargo/Posición:</label>
-                            <input type="text" id="person-position" name="person-position" placeholder="Opcional">
-                        </div>
-                        <div>
-                            <label for="person-department">Departamento:</label>
-                            <input type="text" id="person-department" name="person-department" placeholder="Opcional">
-                        </div>
-                        <button type="submit">Guardar Persona</button>
-                    </form>
+
+            <div id="maintenance-event-forms-container" style="display:none; margin-top: 20px;">
+                <h3 id="selected-tool-for-maintenance-name"></h3>
+                <div class="event-recording-form">
+                    <h4>Registrar Mantenimiento</h4>
+                    <label for="record-maintenance-date-global">Fecha de Mantenimiento Realizado:</label>
+                    <input type="date" id="record-maintenance-date-global">
+                    <button id="register-maintenance-global-btn">Registrar Mantenimiento</button>
+                    <p><strong>Último Mantenimiento Registrado:</strong> <span id="last-maintenance-global-display">N/A</span></p>
+                </div>
+
+                <div class="event-recording-form" style="margin-top: 30px;">
+                    <h4>Registrar Calibración</h4>
+                    <label for="record-calibration-date-global">Fecha de Calibración Realizada:</label>
+                    <input type="date" id="record-calibration-date-global">
+                    <button id="register-calibration-global-btn">Registrar Calibración</button>
+                    <p><strong>Última Calibración Registrada:</strong> <span id="last-calibration-global-display">N/A</span></p>
                 </div>
             </div>
-            
-            <!-- Modal para asignar herramienta -->
-            <div id="assign-tool-modal" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <span class="close-button" onclick="closeAssignToolModal()">&times;</span>
-                    <h2>Asignar Herramienta</h2>
-                    <form id="assign-tool-form">
-                        <input type="hidden" id="assign-to-person" name="assign-to-person">
-                        <div>
-                            <label for="assign-tool-select">Seleccionar Herramienta:</label>
-                            <select id="assign-tool-select" name="assign-tool-select" required>
-                                <option value="">-- Seleccione una herramienta --</option>
-                                <!-- Las herramientas disponibles se cargarán aquí -->
-                            </select>
-                        </div>
-                        <div>
-                            <label for="assign-quantity">Cantidad a Asignar:</label>
-                            <input type="number" id="assign-quantity" name="assign-quantity" min="1" value="1" required>
-                            <span id="available-quantity-info" class="info-text"></span>
-                        </div>
-                        <div>
-                            <label for="assign-note">Nota o Comentario:</label>
-                            <textarea id="assign-note" name="assign-note" placeholder="Opcional"></textarea>
-                        </div>
-                        <button type="submit">Asignar Herramienta</button>
-                    </form>
-                </div>
-            </div>
+            <p id="maintenance-section-placeholder" style="display:block;">Seleccione una herramienta para ver o registrar eventos.</p>
         </section>
     </main>
 
@@ -188,55 +171,221 @@
         <p>&copy; 2024 ToolTracker</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=1.0.0"></script>
 
     <!-- Modal de Edición -->
     <div id="edit-tool-modal" class="modal" style="display:none;">
         <div class="modal-content">
-            <span class="close-button" onclick="closeEditModal()">&times;</span>
+            <span class="close-button" id="close-edit-modal-button">&times;</span>
             <h2>Editar Herramienta</h2>
             <form id="edit-tool-form">
                 <input type="hidden" id="edit-tool-id">
                 <div>
                     <label for="edit-tool-name">Nombre:</label>
-                    <input type="text" id="edit-tool-name" name="edit-tool-name" required>
+                    <input type="text" id="edit-tool-name" required>
                 </div>
                 <div>
                     <label for="edit-tool-description">Descripción:</label>
-                    <textarea id="edit-tool-description" name="edit-tool-description"></textarea>
+                    <textarea id="edit-tool-description"></textarea>
                 </div>
                 <div>
                     <label for="edit-tool-category">Categoría:</label>
-                    <input type="text" id="edit-tool-category" name="edit-tool-category">
+                    <input type="text" id="edit-tool-category">
                 </div>
                 <div>
                     <label for="edit-tool-acquisition-date">Fecha de Adquisición:</label>
-                    <input type="date" id="edit-tool-acquisition-date" name="edit-tool-acquisition-date">
+                    <input type="date" id="edit-tool-acquisition-date">
                 </div>
                 <div>
                     <label for="edit-tool-location">Ubicación:</label>
-                    <input type="text" id="edit-tool-location" name="edit-tool-location">
+                    <input type="text" id="edit-tool-location">
                 </div>
                 <div>
-                    <label for="edit-tool-assigned-to">A cargo de:</label>
-                    <input type="text" id="edit-tool-assigned-to" name="edit-tool-assigned-to" placeholder="Nombre de la persona a cargo">
-                </div>
-                <div class="quantity-fields">
-                    <div>
-                        <label for="edit-tool-quantity-stock">Cantidad en Almacén:</label>
-                        <input type="number" id="edit-tool-quantity-stock" name="edit-tool-quantity-stock" min="0" value="0">
-                    </div>
-                    <div>
-                        <label for="edit-tool-quantity-borrowed">Cantidad Prestada:</label>
-                        <input type="number" id="edit-tool-quantity-borrowed" name="edit-tool-quantity-borrowed" min="0" value="0">
-                    </div>
+                    <label for="edit-tool-image">URL de Imagen:</label>
+                    <input type="url" id="edit-tool-image" placeholder="https://example.com/image.png">
                 </div>
                 <div>
-                    <label for="edit-tool-image">Imagen (URL):</label>
-                    <input type="url" id="edit-tool-image" name="edit-tool-image" placeholder="https://ejemplo.com/imagen.jpg">
+                    <label for="edit-tool-quantity-stock">Cantidad en Almacén:</label>
+                    <input type="number" id="edit-tool-quantity-stock" min="0" required>
                 </div>
-                <button type="submit">Guardar Cambios</button>
+                <div>
+                    <label for="edit-tool-quantity-borrowed">Cantidad Prestada:</label>
+                    <input type="number" id="edit-tool-quantity-borrowed" min="0" required>
+                </div>
+                <button type="submit" class="button-primary">Guardar Cambios</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal para Cambiar Contraseña -->
+    <div id="change-password-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeChangePasswordModal()">&times;</span>
+            <h2>Cambiar Contraseña</h2>
+            <form id="change-password-form">
+                <div>
+                    <label for="current-password">Contraseña Actual:</label>
+                    <input type="password" id="current-password" name="current-password" required autocomplete="current-password">
+                </div>
+                <div>
+                    <label for="new-password">Nueva Contraseña:</label>
+                    <input type="password" id="new-password" name="new-password" required autocomplete="new-password">
+                </div>
+                <div>
+                    <label for="confirm-new-password">Confirmar Nueva Contraseña:</label>
+                    <input type="password" id="confirm-new-password" name="confirm-new-password" required autocomplete="new-password">
+                </div>
+                <button type="submit">Actualizar Contraseña</button>
+                <p id="change-password-message" class="message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Detalles de Unidad y Gestión Individual -->
+    <div id="unit-details-modal" class="modal" style="display:none;">
+        <div class="modal-content large"> <!-- Clase \'large\' para un modal más ancho -->
+            <span class="close-button" id="close-unit-details-modal-button">&times;</span>
+            <h2 id="unit-details-modal-title">Detalles de Unidades: [Nombre Herramienta]</h2>
+            
+            <div id="units-list-container">
+                <table id="units-table">
+                    <thead>
+                        <tr>
+                            <th>Nº Unidad</th>
+                            <th>Estado</th>
+                            <th>Prestado a</th>
+                            <th>Fecha Préstamo</th>
+                            <th>Próx. Mant.</th>
+                            <th>Próx. Calib.</th>
+                            <th>Notas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="units-table-body">
+                        <!-- Las filas de las unidades se insertarán aquí dinámicamente -->
+                        <!-- Ejemplo de fila (para referencia, se generará con JS):
+                        <tr>
+                            <td>1</td>
+                            <td>En Stock</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>15/12/2024</td>
+                            <td>01/01/2025</td>
+                            <td>Funciona OK</td>
+                            <td>
+                                <button class="button-small">Prestar</button>
+                                <button class="button-small">Registrar Mant.</button>
+                                <button class="button-small">Editar Unidad</button>
+                            </td>
+                        </tr>
+                        -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sub-secciones para acciones específicas (inicialmente ocultas o como plantillas) -->
+            <div id="unit-action-forms-container" style="margin-top: 20px;">
+                <!-- Botón para borrar historial de préstamos -->
+                <div id="clear-loan-history-section" class="unit-action-form" style="margin-bottom: 20px;">
+                    <button id="clear-loan-history-btn" class="button-danger" style="width: 100%;">
+                        Borrar Historial de Préstamos
+                    </button>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        Advertencia: Esta acción eliminará todo el historial de préstamos de esta herramienta.
+                    </p>
+                </div>
+                
+                <!-- Formulario para Prestar/Devolver -->
+                <div id="unit-loan-form-section" class="unit-action-form" style="display:none;">
+                    <h3 id="unit-loan-form-title">Prestar Unidad Nº X</h3>
+                    <form id="unit-loan-form">
+                        <input type="hidden" id="loan-tool-id">
+                        <input type="hidden" id="loan-unit-number">
+                        <div>
+                            <label for="loan-to-user">Prestar a:</label>
+                            <input type="text" id="loan-to-user" required>
+                        </div>
+                        <button type="submit" class="button-primary">Confirmar Préstamo</button>
+                        <button type="button" id="cancel-loan-button" class="button-secondary">Cancelar</button>
+                    </form>
+                    <form id="unit-return-form" style="display:none;">
+                        <input type="hidden" id="return-tool-id">
+                        <input type="hidden" id="return-unit-number">
+                         <p>¿Confirmar devolución de la Unidad Nº X?</p>
+                        <button type="submit" class="button-primary">Confirmar Devolución</button>
+                        <button type="button" id="cancel-return-button" class="button-secondary">Cancelar</button>
+                    </form>
+                </div>
+
+                <!-- Formulario para Registrar Evento de Mantenimiento/Calibración -->
+                <div id="unit-record-event-form-section" class="unit-action-form" style="display:none;">
+                    <h3 id="unit-record-event-form-title">Registrar [Mantenimiento/Calibración] para Unidad Nº X</h3>
+                    <form id="unit-record-event-form">
+                        <input type="hidden" id="event-tool-id">
+                        <input type="hidden" id="event-unit-number">
+                        <input type="hidden" id="event-type"> <!-- 'maintenance' o 'calibration' -->
+                        <div>
+                            <label for="event-date">Fecha del Evento:</label>
+                            <input type="date" id="event-date" required>
+                        </div>
+                        <button type="submit" class="button-primary">Registrar Fecha</button>
+                        <button type="button" id="cancel-record-event-button" class="button-secondary">Cancelar</button>
+                    </form>
+                </div>
+
+                <!-- Formulario para Editar Detalles de Unidad (intervalos, notas) -->
+                <div id="unit-edit-details-form-section" class="unit-action-form" style="display:none;">
+                    <h3 id="unit-edit-details-form-title">Editar Detalles de Unidad Nº X</h3>
+                    <form id="unit-edit-details-form">
+                        <input type="hidden" id="edit-unit-tool-id">
+                        <input type="hidden" id="edit-unit-number">
+                        <div>
+                            <label for="edit-unit-notes">Notas:</label>
+                            <textarea id="edit-unit-notes"></textarea>
+                        </div>
+                        <fieldset>
+                            <legend>Intervalo de Mantenimiento Específico</legend>
+                            <div>
+                                <label for="edit-unit-maintenance-interval-value">Intervalo:</label>
+                                <input type="number" id="edit-unit-maintenance-interval-value" min="1">
+                                <select id="edit-unit-maintenance-interval-unit" aria-label="Unidad de intervalo de mantenimiento" title="Seleccione la unidad de tiempo para el intervalo de mantenimiento">
+                                    <option value="">Por defecto</option> <!-- Opción para usar el defecto de la herramienta -->
+                                    <option value="days">Días</option>
+                                    <option value="weeks">Semanas</option>
+                                    <option value="months">Meses</option>
+                                    <option value="years">Años</option>
+                                </select>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Intervalo de Calibración Específico</legend>
+                            <div>
+                                <label for="edit-unit-calibration-interval-value">Intervalo:</label>
+                                <input type="number" id="edit-unit-calibration-interval-value" min="1">
+                                <select id="edit-unit-calibration-interval-unit" aria-label="Unidad de intervalo de calibración" title="Seleccione la unidad de tiempo para el intervalo de calibración">
+                                    <option value="">Por defecto</option> <!-- Opción para usar el defecto de la herramienta -->
+                                    <option value="days">Días</option>
+                                    <option value="weeks">Semanas</option>
+                                    <option value="months">Meses</option>
+                                    <option value="years">Años</option>
+                                </select>
+                            </div>
+                        </fieldset>
+                        <button type="submit" class="button-primary">Guardar Cambios Unidad</button>
+                        <button type="button" id="cancel-edit-unit-details-button" class="button-secondary">Cancelar</button>
+                    </form>
+                </div>
+                
+                <!-- Sección para Ver Historial de Eventos -->
+                <div id="unit-event-history-section" class="unit-action-form" style="display:none;">
+                    <h3 id="unit-event-history-title">Historial de Eventos para Unidad Nº X</h3>
+                    <ul id="unit-event-history-list">
+                        <!-- Los eventos se listarán aquí -->
+                    </ul>
+                    <button type="button" id="close-event-history-button" class="button-secondary">Cerrar Historial</button>
+                </div>
+
+            </div> 
         </div>
     </div>
 </body>
